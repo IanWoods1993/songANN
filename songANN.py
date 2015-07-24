@@ -41,6 +41,12 @@ def getAudioFromSpectrogram(spectrogram):
 
 def initializeNeuralNet():
 	neuralNet = FeedForwardNetwork()
+	inLayer = LinearLayer(812*20) #812 time slices, 20 frequency nodes
+	hiddenLayer = SigmoidLayer(812) #determine for each time slice
+	outLayer =  LinearLayer(1)
+	neuralNet.addInputModule(inLayer)
+	neuralNet.addModule(hiddenLayer)
+	neuralNet.addOutputModule(outLayer)
 	return(neuralNet)
 
 def main():

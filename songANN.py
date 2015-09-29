@@ -54,10 +54,12 @@ def main():
 	songPath = song.name
 	#songPath = "/home/ian/songANN/COTD.wav" #just to skip the box
 	spectrogram = getSpectrogram(songPath)
+	print(spectrogram)
 	#here, call getAudioFromSpectrogram with the right args, etc.
-	neuralNet = initializeNeuralNet()
+	#neuralNet = initializeNeuralNet()
+	#pretty sure there's an error in initialize()
 	#spectrogram = input for the neural network
+	#find out how to add shit into the neural net from the spectrogram
 	return[0]
 main()
 
-#current task - get Pybrain working

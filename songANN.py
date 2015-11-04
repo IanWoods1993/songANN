@@ -6,7 +6,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 import wave
 import sys
-from pybrain.structure import FeedForwardNetwork
+from pybrain.supervised.trainers import BackpropTrainer
+from pybrain.structure import FeedForwardNetwork, LinearLayer, SigmoidLayer, FullConnection, TanhLayer
+from pybrain.structure.connections.connection import Connection
+from pybrain.structure.moduleslice import ModuleSlice
+from pybrain.structure.connections.shared import MotherConnection, SharedFullConnection
 
 def getSong():
 	root = tk.Tk()
@@ -40,24 +44,48 @@ def getAudioFromSpectrogram(spectrogram):
 	return(audio)
 
 def initializeNeuralNet():
-	neuralNet = FeedForwardNetwork()
-	inLayer = LinearLayer(812*20) #812 time slices, 20 frequency nodes
-	hiddenLayer = SigmoidLayer(812) #determine for each time slice
-	outLayer =  LinearLayer(1)
-	neuralNet.addInputModule(inLayer)
-	neuralNet.addModule(hiddenLayer)
-	neuralNet.addOutputModule(outLayer)
-	return(neuralNet)
+
+	net = FeedForwardNetwork()
+
+	subnetSize = 20
+	hiddenSize = 812
+	inputSize = subnetSize * hiddenSize
+
+	inputLayer = LinearLayer(inputSize)
+	hiddenLayer = SigmoidLayer(hiddenSize)
+	outputLayer = LinearLayer(1)
+
+	net.addInputModule(inputLayer)
+	net.addModule(hiddenLayer)
+	net.addOutputModule(outputLayer)
+
+	for i in range (0, hiddenSize):
+		inputToHidden = FullConnection(inputLayer, hiddenLayer, inSliceFrom = i * subnetSize, inSliceTo = i * subnetSize + subnetSize, outSliceFrom = i, outSliceTo = i + 1)
+		net.addConnection(inputToHidden)
+	net.addConnection(FullConnection(hiddenLayer, outputLayer))
+	net.sortModules()
+	return net
 
 def main():
-	song = open(getSong())
-	songPath = song.name
-	#songPath = "/home/ian/songANN/COTD.wav" #just to skip the box
+	#song = open(getSong())
+	#songPath = song.name
+	songPath = "/home/ian/songANN/COTD.wav" #just to skip the box
 	spectrogram = getSpectrogram(songPath)
-	print(spectrogram)
+	spectrum = spectrogram[0].transpose()
+	print(len(spectrum))
+	print(len(spectrum[0]))
+	print("Freqs length: ", len(spectrogram[1]))
+	print(len(spectrogram[2]))
+	#for s in spectrogram:
+	#	print(len(s))
+	#print(len(spectrogram))
+	#for i in spectrogram[0]:
+	#	for j in i:
+	#		counter = counter + 1
+	#print(counter)
 	#here, call getAudioFromSpectrogram with the right args, etc.
-	#neuralNet = initializeNeuralNet()
-	#pretty sure there's an error in initialize()
+	neuralNet = initializeNeuralNet()
+	#print(neuralNet)
 	#spectrogram = input for the neural network
 	#find out how to add shit into the neural net from the spectrogram
 	return[0]
